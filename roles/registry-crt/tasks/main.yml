@@ -1,0 +1,20 @@
+---
+- name: Check registry is started
+  shell: docker ps |grep docker-registry
+  register: has_registry
+  failed_when: false
+
+- name: Check registry dns
+  shell: grep {{ domain_name }} /etc/hosts
+  register: has_registry_dns
+  failed_when: false
+
+- name: Add docker registry dns record in hosts file
+  shell: echo "{{ docker_registry_server }}  {{ domain_name }}" >> /etc/hosts
+  when: has_registry_dns.rc != 0
+
+- name: Create docker registry crt direcotry
+  file: path=/etc/docker/certs.d/{{ domain_name }}:5000 state=directory
+
+- name: Copy registry.crt
+  copy: src=/certs/registry.crt dest=/etc/docker/certs.d/{{ domain_name }}:5000

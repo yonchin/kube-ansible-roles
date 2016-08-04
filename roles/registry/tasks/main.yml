@@ -1,0 +1,47 @@
+---
+- name: Check docker
+  shell: pgrep docker
+  register: started_docker
+
+- name: Copy Dockfile  
+  copy: src={{ item }} dest=/tmp/{{ item }} mode=755
+  with_items:
+      - Dockerfile
+      - registry
+      - config-example.yml
+
+- name: Build docker registry images
+  docker_image:
+      api_version: 1.21
+      path: /tmp
+      name: registry
+      tag: 2.1.1
+  when: started_docker.rc == 0
+
+- name: Copy crt.sh scripts
+  template: src=crt.sh dest=/tmp mode=755
+
+- name: Create tls crt and key
+  shell: /tmp/crt.sh
+
+- name: Create a dirctory for docker registry
+  file: path=/dockrepo state=directory mode=755
+
+- name: Start docker private registry 
+  docker_container:
+      api_version: 1.21
+      name: docker-registry
+      image: registry:2.1.1
+      pull: no
+      state: started
+      ports:
+        - "5000:5000"
+      volumes:
+          - /certs:/certs
+          - /dockrepo:/var/lib/registry
+      env:
+          REGISTRY_HTTP_TLS_CERTIFICATE: /certs/registry.crt
+          REGISTRY_HTTP_TLS_KEY: /certs/registry.key
+  when: started_docker.rc == 0
+
+      

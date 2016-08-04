@@ -1,0 +1,28 @@
+---
+- name: Write dns-addon file
+  template: src=dns-addon.yaml.j2 dest=/etc/kubernetes/dns-addon.yaml
+
+- name: Write kube-system-namespace file
+  template: src=kube-system-namespace.yaml.j2 dest=/etc/kubernetes/kube-system-namespace.yaml
+
+- name: Check that the kube-system namespace exists
+  shell: kubectl get ns |grep kube-system
+  register: has_kube_system_namespace
+
+- name: Create kube-system namespace
+  shell: kubectl create -f /etc/kubernetes/kube-system-namespace.yaml
+  when: dns_setup and has_kube_system_namespace.rc != 0
+
+
+- name: Check that the DNS pod exists
+  shell: kubectl get rc kube-dns-v11 --namespace=kube-system
+  when: has_kube_system_namespace.rc == 0
+  register: has_dns_pod
+  failed_when: false
+  changed_when: false
+
+- name: Create SkyDNS pod
+  shell: kubectl create -f /etc/kubernetes/dns-addon.yaml
+  when: dns_setup and has_kube_system_namespace.rc == 0 and has_dns_pod.rc != 0
+
+

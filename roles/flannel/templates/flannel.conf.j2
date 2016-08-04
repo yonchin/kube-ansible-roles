@@ -1,0 +1,4 @@
+[Service]
+EnvironmentFile=-/run/flannel/docker
+ExecStart=
+ExecStart=/usr/bin/docker daemon $DOCKER_NETWORK_OPTIONS -H fd://

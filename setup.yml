@@ -1,0 +1,24 @@
+---
+
+- hosts: etcd
+  become: yes
+  become_method: sudo
+  roles:
+    - flannel
+    - etcd
+    - flannel-config
+
+- hosts: master
+  become: yes
+  become_method: sudo
+  roles:
+    - flannel
+    - master
+    - skydns
+
+- hosts: minions
+  become: yes
+  become_method: sudo
+  roles:
+    - flannel
+    - minion

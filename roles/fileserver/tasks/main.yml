@@ -1,0 +1,31 @@
+---
+- name: Create nginx directory for config file
+  file: path=/etc/nginx state=directory mode=755
+
+- name: Copy fileserver.conf to /etc/nginx
+  copy: src=fileserver.conf dest=/etc/nginx/fileserver.conf
+
+- name: Create fileserver directory
+  file: path=/fileserver state=directory
+
+#- name: Pull nginx image and tag
+#  docker_image:
+#      api_version: 1.21
+#      name: index.tenxcloud.com/tenx_containers/nginx-ppc64le:v1.6.2
+#      repository: test.com:5000/ppc64le/nginx
+#      tag: 1.6.2
+
+- name: Start nginx container
+  docker_container:
+      api_version: 1.21
+      name: nginx
+      image: index.tenxcloud.com/tenx_containers/nginx-ppc64le:v1.6.2
+      exposed:
+        - 8080
+      ports:
+        - "80:8080"
+      volumes:
+        - /etc/nginx:/etc/nginx/conf.d
+        - /fileserver:/fileserver
+
+

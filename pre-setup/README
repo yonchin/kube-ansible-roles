@@ -1,0 +1,10 @@
+#### To set up ssh access via public keys ###################
+
+You can use this to deploy your public key to all the nodes.  Just put the user
+password for all nodes in ~/sshpassword and make sure you have sshpass installed.
+See the comments in keys.yml to explain the failing ping and offer some other
+options.
+
+$ ansible-playbook -i inventory pre-setup/ping.yml # This will look like it fails, that's ok
+$ ansible-playbook -i inventory pre-setup/keys.yml
+

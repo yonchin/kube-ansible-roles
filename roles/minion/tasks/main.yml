@@ -1,0 +1,26 @@
+---
+- name: Download kubernetes master node pkgs
+  get_url: url={{ fileserver_url }}/{{ item }} dest=/tmp
+  with_items:
+      - kubernetes-client-1.2-0.26.rpm
+      - kubernetes-node-1.2-0.26.rpm
+
+- name: Install kubernetes master node pkgs
+  yum: name=/tmp/{{ item }}
+  with_items:
+      - kubernetes-client-1.2-0.26.rpm
+      - kubernetes-node-1.2-0.26.rpm
+
+- name: write the config files for kubelet
+  template: src={{ item }}.j2 dest=/etc/kubernetes/{{ item }}
+  with_items:
+      - kubelet
+      - config
+  notify:
+          - restart kubelet
+
+- name: Enable kubelet and kube-proxy
+  service: name={{ item }} enabled=yes state=started
+  with_items:
+      - kubelet
+      - kube-proxy

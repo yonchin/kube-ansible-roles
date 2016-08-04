@@ -1,0 +1,13 @@
+---
+- name: Copy glusterfs epel repo file
+  copy: src=glusterfs-epel.repo dest=/etc/yum.repos.d
+
+- name: Write gluster dns record to hosts
+  template: src=hosts dest=/etc/hosts
+
+- name: Install glusterfs server pkgs
+  yum: name=glusterfs-server state=present
+
+- name: Enable glusterd 
+  service: name=glusterd enabled=yes state=started
+

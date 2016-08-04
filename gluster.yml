@@ -1,0 +1,9 @@
+---
+- hosts: gluster
+  roles:
+    - gluster-server
+    - gluster-client
+
+- hosts: all
+  roles:
+    - gluster-client
