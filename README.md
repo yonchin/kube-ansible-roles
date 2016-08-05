@@ -32,3 +32,10 @@ You already did the config!  Just run the setup::
 
     $ ansible-playbook -i inventory setup.yml
 
+### Set up the fileserver
+
+    $ ansible-playbook -i inventory fileserver.yml
+
+### Set up the registry
+
+    $ ansible-playbook -i inventory registry.yml
