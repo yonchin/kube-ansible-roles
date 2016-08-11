@@ -1,13 +1,7 @@
 ---
-- hosts: etcd
-  sudo: yes
+- hosts: flannel
+  become: yes
+  become_method: sudo
   roles:
-          - flannel-config
+    - flannel
 
-- hosts:
-        - masters
-        - minions
-  sudo: yes
-  roles:
-          - common
-          - flannel

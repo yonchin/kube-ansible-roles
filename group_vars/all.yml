@@ -10,8 +10,11 @@ flannel_etcd_subnet: 10.20.0.0/16
 
 fileserver_url: http://172.16.0.205:8080
 
+# for enabled skydns
 dns_setup: true
 
-domain_name: test.com
+# for create crt and key for docker registry 
+registry_dns: test.com
 
+# for /etc/hosts record
 docker_registry_server: 172.16.3.99

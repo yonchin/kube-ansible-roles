@@ -3,7 +3,7 @@
   get_url: url={{ fileserver_url }}/flannel-0.5.5-5.rpm dest=/tmp
 
 - name: Install flannel
-  yum: name=flannel state=latest
+  yum: name=/tmp/flannel-0.5.5-5.rpm 
 
 - name: Install Flannel config file
   template: src=flanneld.j2 dest=/etc/sysconfig/flanneld

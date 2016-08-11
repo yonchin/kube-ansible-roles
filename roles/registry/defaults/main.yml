@@ -1,0 +1,5 @@
+---
+registry_tgz_basename: registry-2.1.1-ppc64le.docker
+registry_tgz_sha256sum: 6076b525021f8bf3b48df6832fa1238906bf935af05c78298e00c3dfb3acd791
+registry_docker_name: registry
+registry_docker_tag: 2.1.1

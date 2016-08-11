@@ -5,16 +5,33 @@
   failed_when: false
 
 - name: Check registry dns
-  shell: grep {{ domain_name }} /etc/hosts
+  shell: grep {{ registry_dns }} /etc/hosts
   register: has_registry_dns
   failed_when: false
 
 - name: Add docker registry dns record in hosts file
-  shell: echo "{{ docker_registry_server }}  {{ domain_name }}" >> /etc/hosts
+  shell: echo "{{ docker_registry_server }}  {{ registry_dns }}" >> /etc/hosts
   when: has_registry_dns.rc != 0
 
 - name: Create docker registry crt direcotry
-  file: path=/etc/docker/certs.d/{{ domain_name }}:5000 state=directory
+  file: path=/etc/docker/certs.d/{{ registry_dns }}:5000 state=directory mode=755
+
+- name: Check crt and key is exists
+  shell: ls /certs/registry.crt
+  register: has_registry_crt
+
+- name: Copy crt.sh scripts
+  template: src=crt.sh dest=/tmp mode=755
+
+- name: Create tls crt and key 
+  shell: /tmp/crt.sh
+
+- name: Copy crt.sh scripts
+  template: src=crt.sh dest=/tmp mode=755
+
+- name: Create tls crt and key 
+  shell: /tmp/crt.sh
+  when: has_registry_crt.rc != 0
 
 - name: Copy registry.crt
-  copy: src=/certs/registry.crt dest=/etc/docker/certs.d/{{ domain_name }}:5000
+  copy: src=/certs/registry.crt dest=/etc/docker/certs.d/{{ registry_dns }}:5000 mode=755

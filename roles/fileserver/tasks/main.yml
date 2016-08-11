@@ -6,7 +6,7 @@
   copy: src=fileserver.conf dest=/etc/nginx/fileserver.conf
 
 - name: Create fileserver directory
-  file: path=/fileserver state=directory
+  file: path=/fileserver state=directory mode=755
 
 #- name: Pull nginx image and tag
 #  docker_image:

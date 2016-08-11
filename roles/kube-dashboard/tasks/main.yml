@@ -1,0 +1,28 @@
+---
+- name: Write kubernetes-dashboard.yaml file
+  template: src=kubernetes-dashboard.yaml.j2 dest=/etc/kubernetes/kubernetes-dashboard.yaml
+
+- name: Write kube-system-namespace file
+  template: src=kube-system-namespace.yaml.j2 dest=/etc/kubernetes/kube-system-namespace.yaml
+
+- name: Check that the kube-system namespace exists
+  shell: kubectl get ns |grep kube-system
+  register: has_kube_system_namespace
+
+- name: Create kube-system namespace
+  shell: kubectl create -f /etc/kubernetes/kube-system-namespace.yaml
+  when: has_kube_system_namespace.rc != 0
+
+
+- name: Check that the dashboard pod exists
+  shell: kubectl get deployment --namespace=kube-system
+  when: has_kube_system_namespace.rc == 0
+  register: has_dashboard_pod
+  failed_when: false
+  changed_when: false
+
+- name: Create dashboard pod
+  shell: kubectl create -f /etc/kubernetes/kubernetes-dashboard.yaml
+  when: has_kube_system_namespace.rc == 0 and has_dashboard_pod.rc != 0
+
+

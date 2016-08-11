@@ -3,26 +3,36 @@
   shell: pgrep docker
   register: started_docker
 
-- name: Copy Dockfile  
-  copy: src={{ item }} dest=/tmp/{{ item }} mode=755
-  with_items:
-      - Dockerfile
-      - registry
-      - config-example.yml
+#- name: Copy Dockfile  
+#  copy: src={{ item }} dest=/tmp/{{ item }} mode=755
+#  with_items:
+#      - Dockerfile
+#      - registry
+#      - config-example.yml
 
-- name: Build docker registry images
+- name: 'Download registry docker tar gzip file from file server'
+  get_url: url={{ fileserver_url }}/base_image/{{ registry_tgz_basename }}.tar.gz dest=/tmp/  checksum=sha256:{{ registry_tgz_sha256sum }}
+  register: download_registry_tgz
+
+- name: unzip centos docker tar gzip 
+  unarchive: src=/tmp/{{ registry_tgz_basename }}.tar.gz dest=/tmp copy=no
+  when: download_registry_tgz|changed
+
+- name: Build registry 2.1.1 ppc64le image
   docker_image:
-      api_version: 1.21
-      path: /tmp
-      name: registry
-      tag: 2.1.1
-  when: started_docker.rc == 0
+    api_version: 1.21
+    name: '{{ registry_docker_name }}'
+    tag: '{{ registry_docker_tag }}'
+    load_path: /tmp/{{ registry_tgz_basename }}
+    http_timeout: 300 
 
-- name: Copy crt.sh scripts
-  template: src=crt.sh dest=/tmp mode=755
-
-- name: Create tls crt and key
-  shell: /tmp/crt.sh
+#- name: Build docker registry images
+#  docker_image:
+#      api_version: 1.21
+#      path: /tmp
+#      name: registry
+#      tag: 2.1.1
+#  when: started_docker.rc == 0
 
 - name: Create a dirctory for docker registry
   file: path=/dockrepo state=directory mode=755
@@ -31,7 +41,7 @@
   docker_container:
       api_version: 1.21
       name: docker-registry
-      image: registry:2.1.1
+      image: '{{ registry_docker_name }}:{{ registry_docker_tag }}'
       pull: no
       state: started
       ports:
@@ -44,4 +54,4 @@
           REGISTRY_HTTP_TLS_KEY: /certs/registry.key
   when: started_docker.rc == 0
 
-      
+
